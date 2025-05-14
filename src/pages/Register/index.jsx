@@ -62,7 +62,7 @@ const Register = () => {
           </div>
           <div className="mb-4">
             <Input
-              type="email"
+              type="text"
               placeholder="Email"
               className="w-full h-12 md:h-14 bg-[#4c4c4c4c] rounded-lg border-0 text-[#979797] text-sm md:text-base pl-6 focus:ring-1 focus:ring-[#24cdd7] focus:outline-none"
               value={formData.email}

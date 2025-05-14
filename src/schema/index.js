@@ -15,6 +15,18 @@ export const RegisterFormSchema = yup.object({
     .oneOf([yup.ref("password"), null], "Passwords must match"),
 });
 
+export const ForgotPasswordSchema = yup.object({
+  email: yup.string().email("Invalid email").required("Email is required"),
+});
+
+export const BasicInfoSchema = yup.object({
+  firstName: yup.string().required("First Name is required"),
+  lastName: yup.string().required("Last Name is required"),
+  gender: yup.string().required("Gender is required"),
+  height: yup.string().required("Height is required"),
+  width: yup.string().required("Width is required"),
+});
+
 export const validateForm = async (schema, data) => {
   try {
     console.log("data::::::::", data);
