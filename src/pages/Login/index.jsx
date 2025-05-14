@@ -7,6 +7,7 @@ import { handleInputChange } from "../../utils/helper";
 import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
+import { Link } from "react-router-dom";
 
 const initialState = {
   username: "",
@@ -87,12 +88,12 @@ const Login = () => {
                 Remember Password
               </label>
             </div>
-            <button
-              type="button"
-              className="text-neutral-300 text-xs md:text-sm font-medium hover:text-[#24cdd7] transition-colors"
+            <Link
+              className="text-neutral-300 text-xs md:text-sm font-medium hover:text-[#24cdd7] transition-colors cursor-pointer"
+              to="/forgot-password"
             >
               Forgot password?
-            </button>
+            </Link>
           </div>
 
           <button type="submit" className="btn-primary">
@@ -101,12 +102,12 @@ const Login = () => {
 
           <div className="text-center mb-8">
             <span className="text-white text-sm">Don't have an account? </span>
-            <button
-              type="button"
-              className="text-[#36d3b7] text-sm hover:underline font-medium"
+            <Link
+              className="text-[#36d3b7] text-sm hover:underline font-medium cursor-pointer"
+              to="/signup"
             >
               Sign up
-            </button>
+            </Link>
           </div>
 
           <Divider />

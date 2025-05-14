@@ -7,6 +7,7 @@ import { handleInputChange } from "../../utils/helper";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
 import bgImg from "../../assets/bg-img1.png";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
   firstName: "",
@@ -20,6 +21,7 @@ const initialState = {
 };
 
 const BasicInfo = () => {
+  const navigate = useNavigate();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const { formData, setFormData, validate, errors } = useForm(
     LoginFormSchema,
@@ -28,6 +30,7 @@ const BasicInfo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    navigate("/goal");
 
     const hasErrors = await validate();
     if (hasErrors) return;

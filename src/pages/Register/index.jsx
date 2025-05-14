@@ -7,6 +7,7 @@ import { handleInputChange } from "../../utils/helper";
 import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
+import { Link, useNavigate } from "react-router-dom";
 
 const initialState = {
   username: "",
@@ -16,6 +17,7 @@ const initialState = {
 };
 
 const Register = () => {
+  const navigate = useNavigate();
   const { formData, setFormData, validate, errors } = useForm(
     RegisterFormSchema,
     initialState
@@ -23,6 +25,8 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    navigate("/basic-info");
+    return;
 
     const hasErrors = await validate();
     if (hasErrors) return;
@@ -101,12 +105,12 @@ const Register = () => {
             <span className="text-white text-sm">
               Alraedy have an account?{" "}
             </span>
-            <button
-              type="button"
-              className="text-[#36d3b7] text-sm hover:underline font-medium"
+            <Link
+              to="/signin"
+              className="text-[#36d3b7] text-sm hover:underline font-medium cursor-pointer"
             >
               Sign in
-            </button>
+            </Link>
           </div>
 
           <Divider />
