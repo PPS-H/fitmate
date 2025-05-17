@@ -8,6 +8,7 @@ import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
 import { Link, useNavigate } from "react-router-dom";
+import supabase from "../../utils/supabase";
 
 const initialState = {
   username: "",
@@ -25,13 +26,32 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/basic-info");
-    return;
 
     const hasErrors = await validate();
     if (hasErrors) return;
 
-    console.log("Form submitted:", formData);
+    console.log("formData:::::", formData);
+
+    const response = await supabase.auth
+      .signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: "http://localhost:5173/",
+        },        // options: {
+        //     data: {
+        //         firstName: firstName,
+        //         lastName: lastName,
+        //     }
+        // }
+      })
+      .then(() => {
+        // setIdentity(user?.email);
+
+        // console.log("user.email", email);
+      });
+
+    console.log("user, session, error::::", response);
   };
 
   return (

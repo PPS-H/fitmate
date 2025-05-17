@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../../components/Logo";
 import { useForm } from "../../hooks/useForm";
 import { LoginFormSchema } from "../../schema";
@@ -7,7 +7,8 @@ import { handleInputChange } from "../../utils/helper";
 import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import supabase from "../../utils/supabase";
 
 const initialState = {
   username: "",
@@ -15,20 +16,80 @@ const initialState = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const [rememberPassword, setRememberPassword] = useState(false);
   const { formData, setFormData, validate, errors } = useForm(
     LoginFormSchema,
     initialState
   );
 
+  const handleGoogleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "http://localhost:5173/signin",
+        },
+      });
+
+      if (error) throw error;
+
+      console.log("Redirecting to Google for login...", data);
+    } catch (error) {
+      console.error("Google login error:", error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const hasErrors = await validate();
     if (hasErrors) return;
+    const { user, session, error } = await supabase.auth
+      .signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      })
+      .then(() => {});
+    // setIdentity(email);
 
-    console.log("Form submitted:", formData);
+    const isUser = await supabase.auth.getUser();
+    console.log("isUser:::", isUser);
+
+    console.log("supabase dtaa:::", user, session, error);
   };
+
+  useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session && session.user) {
+        console.log("User is logged in via Google:", session.user);
+        navigate("/");
+      } else {
+        console.log("No active session yet");
+      }
+    };
+
+    getSession();
+  }, []);
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session && session.user) {
+          console.log("Auth state changed via Google:", session.user);
+          // Redirect to dashboard
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <div
@@ -116,7 +177,7 @@ const Login = () => {
             Sign in with
           </div>
 
-          <SocialMediaLinks />
+          <SocialMediaLinks handleGoogleLogin={handleGoogleLogin} />
         </form>
       </div>
     </div>
