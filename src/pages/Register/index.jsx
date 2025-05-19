@@ -7,6 +7,9 @@ import { handleInputChange } from "../../utils/helper";
 import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
+import { Link, useNavigate } from "react-router-dom";
+import supabase from "../../utils/supabase";
+
 
 const initialState = {
   username: "",
@@ -14,8 +17,8 @@ const initialState = {
   password: "",
   rePassword: "",
 };
-
 const Register = () => {
+  const navigate = useNavigate();
   const { formData, setFormData, validate, errors } = useForm(
     RegisterFormSchema,
     initialState
@@ -27,7 +30,28 @@ const Register = () => {
     const hasErrors = await validate();
     if (hasErrors) return;
 
-    console.log("Form submitted:", formData);
+    console.log("formData:::::", formData);
+
+    const response = await supabase.auth
+      .signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: "http://localhost:5173/",
+        },        // options: {
+        //     data: {
+        //         firstName: firstName,
+        //         lastName: lastName,
+        //     }
+        // }
+      })
+      .then(() => {
+        // setIdentity(user?.email);
+
+        // console.log("user.email", email);
+      });
+
+    console.log("user, session, error::::", response);
   };
 
   return (
@@ -101,12 +125,12 @@ const Register = () => {
             <span className="text-white text-sm">
               Alraedy have an account?{" "}
             </span>
-            <button
-              type="button"
-              className="text-[#36d3b7] text-sm hover:underline font-medium"
+            <Link
+              to="/signin"
+              className="text-[#36d3b7] text-sm hover:underline font-medium cursor-pointer"
             >
               Sign in
-            </button>
+            </Link>
           </div>
 
           <Divider />
