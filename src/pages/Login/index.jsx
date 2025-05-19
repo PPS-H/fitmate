@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../../components/Logo";
 import { useForm } from "../../hooks/useForm";
 import { LoginFormSchema } from "../../schema";
@@ -7,6 +7,8 @@ import { handleInputChange } from "../../utils/helper";
 import Password from "../../components/Password";
 import Divider from "../../components/Divider";
 import SocialMediaLinks from "../../components/SocialMediaLinks";
+import { Link, useNavigate } from "react-router-dom";
+import supabase from "../../utils/supabase";
 
 const initialState = {
   username: "",
@@ -14,11 +16,29 @@ const initialState = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const [rememberPassword, setRememberPassword] = useState(false);
   const { formData, setFormData, validate, errors } = useForm(
     LoginFormSchema,
     initialState
   );
+  const handleGoogleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "http://localhost:5173/signin",
+        },
+      });
+
+      if (error) throw error;
+
+      console.log("Redirecting to Google for login...", data);
+    } catch (error) {
+      console.error("Google login error:", error.message);
+    }
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,9 +46,49 @@ const Login = () => {
     const hasErrors = await validate();
     if (hasErrors) return;
 
-    console.log("Form submitted:", formData);
-  };
+     const { user, session, error } = await supabase.auth
+      .signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      })
+      .then(() => {});
+    // setIdentity(email);
 
+    const isUser = await supabase.auth.getUser();
+    console.log("isUser:::", isUser);
+
+    console.log("supabase dtaa:::", user, session, error);
+  };
+  useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session && session.user) {
+        console.log("User is logged in via Google:", session.user);
+        navigate("/");
+      } else {
+        console.log("No active session yet");
+      }
+    };
+
+    getSession();
+  }, []);
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session && session.user) {
+          console.log("Auth state changed via Google:", session.user);
+          // Redirect to dashboard
+        }
+      }
+    );
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
   return (
     <div
       className={`fixed inset-0 bg-black flex flex-col justify-center items-center px-4 py-6 md:py-12 `}
@@ -87,12 +147,12 @@ const Login = () => {
                 Remember Password
               </label>
             </div>
-            <button
-              type="button"
-              className="text-neutral-300 text-xs md:text-sm font-medium hover:text-[#24cdd7] transition-colors"
+            <Link
+              className="text-neutral-300 text-xs md:text-sm font-medium hover:text-[#24cdd7] transition-colors cursor-pointer"
+              to="/forgot-password"
             >
               Forgot password?
-            </button>
+            </Link>
           </div>
 
           <button type="submit" className="btn-primary">
@@ -101,12 +161,12 @@ const Login = () => {
 
           <div className="text-center mb-8">
             <span className="text-white text-sm">Don't have an account? </span>
-            <button
-              type="button"
-              className="text-[#36d3b7] text-sm hover:underline font-medium"
+            <Link
+              className="text-[#36d3b7] text-sm hover:underline font-medium cursor-pointer"
+              to="/signup"
             >
               Sign up
-            </button>
+            </Link>
           </div>
 
           <Divider />
@@ -115,7 +175,7 @@ const Login = () => {
             Sign in with
           </div>
 
-          <SocialMediaLinks />
+          <SocialMediaLinks handleGoogleLogin={handleGoogleLogin} />
         </form>
       </div>
     </div>
