@@ -19,18 +19,39 @@ const Home = () => {
     };
 
     getSession();
+     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
-      {name == "" ? (
-        <div>
-          Please login{" "}
-          <Link to="/signin" className=" underline ">
-            here
-          </Link>
+      {!user ? (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <p className="mb-4">Please login to continue</p>
+            <Link to="/signin" className="text-blue-500 underline hover:text-blue-700">
+              Sign in
+            </Link>
+          </div>
         </div>
       ) : (
-        <div>Hello {name}</div>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl mb-4">Welcome {user.user_metadata.full_name || user.email}</h1>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
