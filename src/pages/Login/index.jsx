@@ -29,7 +29,7 @@ const Login = () => {
         provider: "google",
         options: {
           // redirectTo: "http://localhost:5173/signin",
-          redirectTo: "/signin",
+          redirectTo: "https://fitmate-hazel.vercel.app/signin",
         },
       });
 
